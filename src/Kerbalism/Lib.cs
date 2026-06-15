@@ -310,9 +310,6 @@ namespace KERBALISM
 		{
 			get
 			{
-				if (!GameSettings.KERBIN_TIME)
-					return 24.0;
-
 				if (hoursInDay == -1.0)
 				{
 					if (FlightGlobals.ready || IsEditor())
@@ -322,9 +319,8 @@ namespace KERBALISM
 					}
 					else
 					{
-						return 6.0;
+						return GameSettings.KERBIN_TIME ? 6.0 : 24.0;
 					}
-
 				}
 				return hoursInDay;
 			}
@@ -1462,7 +1458,12 @@ namespace KERBALISM
 		/// <summary> Is this body a sun ? </summary>
 		public static bool IsSun(CelestialBody body)
 		{
-			return Sim.suns.Exists(p => p.bodyIndex == body.flightGlobalsIndex);
+			int idx = body.flightGlobalsIndex;
+			foreach (Sim.SunData s in Sim.suns)
+			{
+				if (s.bodyIndex == idx) return true;
+			}
+			return false;
 		}
 
 		/// <summary> return the first found parent sun for a given body </summary>
@@ -1510,7 +1511,21 @@ namespace KERBALISM
 		/// <summary>Get a body display name, without the gender tag</summary>
 		public static string BodyDisplayName(CelestialBody body)
 		{
-			return body.displayName.LocalizeRemoveGender();
+			try
+			{
+				return body.displayName.LocalizeRemoveGender();
+			}
+			catch
+			{
+				if (HighLogic.LoadedSceneIsFlight)
+				{
+					return FlightGlobals.currentMainBody.displayName.LocalizeRemoveGender();
+				}
+				else
+				{
+					return null; //indicates we are not ready, happens when things query this too early during rover EVAs and such. There is probably a better fix somehow.
+				}
+			}
 		}
 		#endregion
 
