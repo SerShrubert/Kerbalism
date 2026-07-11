@@ -2597,7 +2597,7 @@ namespace KERBALISM
 		/// <summary> Adds the specified resource amount and capacity to a part,
 		/// the resource is created if it doesn't already exist </summary>
 		///<summary>poached from https://github.com/blowfishpro/B9PartSwitch/blob/master/B9PartSwitch/Extensions/PartExtensions.cs
-		public static PartResource AddResource(Part p, string res_name, double amount, double capacity)
+		public static PartResource AddResource(Part p, string res_name, double amount, double capacity, bool append_amount = false)
 		{
 			var reslib = PartResourceLibrary.Instance.resourceDefinitions;
 			// if the resource is not known, log a warning and do nothing
@@ -2637,12 +2637,25 @@ namespace KERBALISM
 			}
 			else
 			{
-				resource.maxAmount = capacity;
+				if (append_amount) // Add to existing resource instead of overriding it
+				{
+					resource.maxAmount += capacity;
 
-				PartResource simulationResource = p.SimulationResources?[resourceDefinition.name];
-				if (simulationResource != null) simulationResource.maxAmount = capacity;
+					PartResource simulationResource = p.SimulationResources?[resourceDefinition.name];
+					if (simulationResource != null) simulationResource.maxAmount += capacity;
 
-				resource.amount = amount;
+					resource.amount += amount;
+				}
+				else // Default behavior
+				{
+					resource.maxAmount = capacity;
+
+					PartResource simulationResource = p.SimulationResources?[resourceDefinition.name];
+					if (simulationResource != null) simulationResource.maxAmount = capacity;
+
+					resource.amount = amount;
+				}
+
 			}
 
 			return resource;
