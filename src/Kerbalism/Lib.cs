@@ -603,7 +603,7 @@ namespace KERBALISM
 			}
 		}
 
-		///<summary>return the unity Colot  for kerbalism Kolors</summary>
+		///<summary>return the unity Color for kerbalism Kolors</summary>
 		public static Color KolorToColor(Kolor color)
 		{
 			switch (color)
@@ -957,10 +957,16 @@ namespace KERBALISM
 			return SIAmount(rate * rui.MultiplierToUnit, rui.AmountUnit, sigFigs, longPrefix);
 		}
 
-		///<summary> Pretty-print flux (value is in W/m^2)</summary>
+		///<summary> Pretty-print flux per unit area (value is in W/m^2)</summary>
 		public static string SIFlux(double flux)
 		{
 			return KSPUtil.PrintSI(flux, "W/m²");
+		}
+
+		///<summary> Pretty-print power or radiant flux (value is in W)</summary>
+		public static string SIPower(double flux)
+		{
+			return KSPUtil.PrintSI(flux, "W");
 		}
 
 		///<summary> Pretty-print magnetic strength </summary>
@@ -1034,32 +1040,32 @@ namespace KERBALISM
 				if (d < 60.0)
 				{
 					ulong seconds = duration_seconds % 60ul;
-					return BuildString(seconds.ToString(), "s");
+					return BuildString(seconds.ToString(), Local.Generic_Seconds);
 				}
 				// minutes + seconds
 				if (d < 3600.0)
 				{
 					ulong seconds = duration_seconds % 60ul;
 					ulong minutes = (duration_seconds / 60ul) % 60ul;
-					return BuildString(minutes.ToString(), "m ", seconds.ToString("00"), "s");
+					return BuildString(minutes.ToString(), Local.Generic_Minutes, " ", seconds.ToString("00"), Local.Generic_Seconds);
 				}
 				// hours + minutes
 				if (d < 3600.0 * HoursInDay)
 				{
 					ulong minutes = (duration_seconds / 60ul) % 60ul;
 					ulong hours = (duration_seconds / 3600ul) % hours_in_day;
-					return BuildString(hours.ToString(), "h ", minutes.ToString("00"), "m");
+					return BuildString(hours.ToString(), Local.Generic_Hours, " ", minutes.ToString("00"), Local.Generic_Minutes);
 				}
 				ulong days = (duration_seconds / (3600ul * hours_in_day)) % days_in_year;
 				// days + hours
 				if (d < 3600.0 * HoursInDay * DaysInYear)
 				{
 					ulong hours = (duration_seconds / 3600ul) % hours_in_day;
-					return BuildString(days.ToString(), "d ", hours.ToString(), "h");
+					return BuildString(days.ToString(), Local.Generic_Days, " ", hours.ToString(), Local.Generic_Hours);
 				}
 				// years + days
 				ulong years = duration_seconds / (3600ul * hours_in_day * days_in_year);
-				return BuildString(years.ToString(), "y ", days.ToString(), "d");
+				return BuildString(years.ToString(), Local.Generic_Years, " ", days.ToString(), Local.Generic_Days);
 			}
 			else
 			{
@@ -1081,8 +1087,8 @@ namespace KERBALISM
 				long years = duration / (long)days_in_year;
 
 				string result = string.Empty;
-				if (years > 0) result += years + "y ";
-				if (years > 0 || days > 0) result += days + "d ";
+				if (years > 0) result += years + Local.Generic_Years + " ";
+				if (years > 0 || days > 0) result += days + Local.Generic_Days + " ";
 				if (years > 0 || days > 0 || hours > 0) result += hours.ToString("D2") + ":";
 				if (years > 0 || days > 0 || hours > 0 || minutes > 0) result += minutes.ToString("D2") + ":";
 				result += seconds.ToString("D2");
@@ -1134,13 +1140,22 @@ namespace KERBALISM
 			return BuildString(angle >= 0.0001 ? angle.ToString("F1") : "0", " °");
 		}
 
-		///<summary> Pretty-print flux </summary>
+		///<summary> Pretty-print flux per unit area </summary>
 		public static string HumanReadableFlux(double flux)
 		{
 			if (Settings.UseSIUnits)
 				return SIFlux(flux);
 
 			return BuildString(flux >= 0.0001 ? flux.ToString("F1") : flux.ToString(), " W/m²");
+		}
+
+		///<summary> Pretty-print power or radiant flux </summary>
+		public static string HumanReadablePower(double power)
+		{
+			if (Settings.UseSIUnits)
+				return SIPower(power);
+
+			return BuildString(power >= 0.0001 ? power.ToString("F1") : power.ToString(), " W");
 		}
 
 		///<summary> Pretty-print magnetic strength </summary>
