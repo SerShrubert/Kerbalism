@@ -47,6 +47,7 @@ namespace KERBALISM
 
 		// data
 		List<PartModule> modules;                                           // components cache
+		List<ModuleAlternator> alternators;                                 // engine-mounted ModuleAlternator cache
 		CrewSpecs repair_cs;                                                // crew specs
 		bool explode = false;
 
@@ -86,6 +87,8 @@ namespace KERBALISM
                 {
 					modules.Add(engine);
                 }
+				// stock alternators keep producing EC unless disabled separately (#747)
+				alternators = part.FindModulesImplementing<ModuleAlternator>();
             }
 			else
 			{
@@ -108,6 +111,7 @@ namespace KERBALISM
 					m.enabled = false;
 					m.isEnabled = false;
 				}
+				SetAlternatorsEnabled(false);
 			}
 
 			if(broken) StartCoroutine(DeferredApply());
@@ -220,6 +224,7 @@ namespace KERBALISM
 						m.enabled = false;
 						m.isEnabled = false;
 					}
+					SetAlternatorsEnabled(false);
 					EnforceBrokenRadiatorState();
 				}
 
@@ -775,6 +780,15 @@ namespace KERBALISM
 						Lib.Proto.Set(proto_module, nameof(ProcessController.broken), true);
 				}
 
+				// engine failures must also stop the co-located stock alternator (#747)
+				if (reliability.type.StartsWith("ModuleEngines", StringComparison.Ordinal))
+				{
+					foreach (var proto_module in p.modules.FindAll(k => k.moduleName == "ModuleAlternator"))
+					{
+						Lib.Proto.Set(proto_module, "isEnabled", false);
+					}
+				}
+
 				ProtoPartModuleCache.Purge(Lib.VesselID(v));
 
 				// type-specific hacks
@@ -963,6 +977,15 @@ namespace KERBALISM
 			return false;
 		}
 
+		void SetAlternatorsEnabled(bool enabled)
+		{
+			if (alternators == null) return;
+			foreach (ModuleAlternator alt in alternators)
+			{
+				alt.enabled = enabled;
+				alt.isEnabled = enabled;
+			}
+    }
 		static bool GetRadiatorCoolingState(PartModule radiator, bool fallback)
 		{
 			if (radiator == null)
@@ -987,23 +1010,30 @@ namespace KERBALISM
 		// apply type-specific hacks to enable/disable the module
 		protected void Apply(bool b)
 		{
-			if(b && type.StartsWith("ModuleEngines", StringComparison.Ordinal))
+			if(type.StartsWith("ModuleEngines", StringComparison.Ordinal))
 			{
-				foreach (PartModule m in modules)
+				if (b)
 				{
-					var e = m as ModuleEngines;
-					e.Shutdown();
-					e.EngineIgnited = false;
-					e.flameout = true;
-
-					var efx = m as ModuleEnginesFX;
-					if (efx != null)
+					foreach (PartModule m in modules)
 					{
-						efx.DeactivateRunningFX();
-						efx.DeactivatePowerFX();
-						efx.DeactivateLoopingFX();
+						var e = m as ModuleEngines;
+						e.Shutdown();
+						e.EngineIgnited = false;
+						e.flameout = true;
+
+						var efx = m as ModuleEnginesFX;
+						if (efx != null)
+						{
+							efx.DeactivateRunningFX();
+							efx.DeactivatePowerFX();
+							efx.DeactivateLoopingFX();
+						}
 					}
 				}
+
+				// ModuleAlternator is a separate PartModule; disable it when the engine fails
+				// so it stops producing ElectricCharge until repaired (#747)
+				SetAlternatorsEnabled(!b);
 			}
 
 			switch (type)
