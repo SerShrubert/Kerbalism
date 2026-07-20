@@ -1,7 +1,7 @@
 name: Feature request
 description: Suggest an enhancement or change in behavior.
 title: "[Feature Request]: "
-labels: ["enhancement", "Discussion"]
+labels: ["enhancement", "discussion"]
 body:
   - type: markdown
     attributes:
