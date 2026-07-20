@@ -1,0 +1,75 @@
+name: Bug report
+description: Something is broken or behaves incorrectly.
+title: "[Bug]: "
+labels: ["bug", "unconfirmed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug.
+
+        Please read [How to Report Bugs](https://github.com/Kerbalism/Kerbalism/blob/master/CONTRIBUTING.md#how-to-report-bugs) first.
+        Reproduce with the **minimal** mod set whenever possible (ideally Kerbalism + ModuleManager only).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What went wrong? Include Kerbalism / KSP versions and relevant mods if you know them; otherwise please make sure to upload `KSP.log`.
+      placeholder: Clear and concise description of the bug.
+
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps someone else can follow.
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        Attach or link one or more of the following (zip is fine; pastebin / similar links also work):
+        - `KSP.log` — in the KSP install root (next to the game executable)
+        - `Player.log` — Unity player log (useful especially after a crash). On Windows: `%USERPROFILE%\AppData\LocalLow\Squad\Kerbal Space Program\`
+        - The `Logs` folder in the KSP install root — zip and upload the whole folder if useful
+      placeholder: Attach KSP.log, Player.log, and/or a zip of the Logs folder, or paste links here.
+    validations:
+      required: true
+
+  - type: textarea
+    id: craft
+    attributes:
+      label: Craft file (optional)
+      description: |
+        If you encounter problems with specific vessels, please attach the craft file and short instructions on how to use it.
+        Remove parts from mods so we can load them, unless the parts from mods are crucial for reproducing the problem.
+      placeholder: Attach the craft file to this issue, and describe how to load / reproduce with it.
+
+  - type: textarea
+    id: quicksave
+    attributes:
+      label: Quicksave (optional)
+      description: |
+        It is recommended to attach quicksave files that describe the situation.
+        Make sure that we can load them and remove all non-stock crafts (unless they are crucial for the reproduction).
+      placeholder: Attach the quicksave to this issue, and note the save name / situation if needed.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I checked CONTRIBUTING.md / existing issues
+          required: true
+        - label: I am willing to help test (or contribute a fix if I can)
+          required: false

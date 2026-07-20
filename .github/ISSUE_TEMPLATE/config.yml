@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: FAQ & Wiki
+    url: https://github.com/Kerbalism/Kerbalism/wiki/FAQ
+    about: Check known issues and documentation before opening an issue.
+  - name: Discord
+    url: https://discord.gg/3JAE2JE
+    about: Ask questions and get quick help from the community.
+  - name: Existing issues
+    url: https://github.com/Kerbalism/Kerbalism/issues
+    about: Search open and closed issues to avoid duplicates.
