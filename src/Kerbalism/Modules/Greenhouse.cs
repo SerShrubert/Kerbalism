@@ -203,11 +203,13 @@ namespace KERBALISM
 			g.Set_WACO2();
 
 			natural = vd.EnvSolarFluxTotal;
-			artificial = Math.Max(g.light_tolerance - natural, 0.0);
-
 			ResourceInfo ec = resources.GetResource(v, "ElectricCharge");
 			double lamp_ec_rate = g.ec_rate * g.ec_rate_mult;
-			bool lamps_needed = artificial > double.Epsilon && lamp_ec_rate > double.Epsilon;
+			// ec_rate == 0 disables lamps: no artificial light fill-in.
+			artificial = lamp_ec_rate > double.Epsilon
+				? Math.Max(g.light_tolerance - natural, 0.0)
+				: 0.0;
+			bool lamps_needed = artificial > double.Epsilon;
 			if (lamps_needed && Available(ec) <= double.Epsilon)
 				artificial = 0.0;
 
